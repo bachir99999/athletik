@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/views/pages/running_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -26,7 +27,12 @@ class HomePage extends StatelessWidget {
                   foregroundColor: Colors.white, // Texte blanc
                 ),
                 onPressed: () {
-                  // Action pour le bouton "Running"
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RunningPage(),
+                    ),
+                  );
                 },
                 child: const Text('Running'),
               ),
