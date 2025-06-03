@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/views/widgets/chrono_widget.dart';
 
 class RunningPage extends StatelessWidget {
   const RunningPage({super.key});
@@ -13,22 +14,10 @@ class RunningPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0),
-                  ),
-                  side: const BorderSide(
-                    width: 2,
-                    color: Colors.white,
-                  ), // Bordure blanche
-                  foregroundColor: Colors.white, // Texte blanc
-                ),
-                onPressed: () {
-                  // Action pour le bouton "Start Running"
+              ChronoWidget(
+                onTick: () {
+                  // Action à effectuer à chaque tick du chrono
                 },
-                child: const Text('Start Running'),
               ),
             ],
           ),
