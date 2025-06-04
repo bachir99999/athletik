@@ -10,6 +10,8 @@ class PomodoroWidget extends StatefulWidget {
 class _PomodoroWidgetState extends State<PomodoroWidget> {
   int workMinutes = 25;
   int restMinutes = 5;
+  int totalRounds = 4;
+  int currentRound = 1;
 
   Duration get workDuration => Duration(minutes: workMinutes);
   Duration get restDuration => Duration(minutes: restMinutes);
@@ -52,6 +54,7 @@ class _PomodoroWidgetState extends State<PomodoroWidget> {
     setState(() {
       isRunning = false;
       isWorking = true;
+      currentRound = 1;
       workRemaining = Duration(minutes: workMinutes);
       restRemaining = Duration(minutes: restMinutes);
     });
@@ -73,9 +76,15 @@ class _PomodoroWidgetState extends State<PomodoroWidget> {
         if (restRemaining.inSeconds > 0) {
           restRemaining -= const Duration(seconds: 1);
         } else {
-          isWorking = true;
-          workRemaining = Duration(minutes: workMinutes);
-          restRemaining = Duration(minutes: restMinutes);
+          if (currentRound < totalRounds) {
+            currentRound++;
+            isWorking = true;
+            workRemaining = Duration(minutes: workMinutes);
+            restRemaining = Duration(minutes: restMinutes);
+          } else {
+            // Fin des rounds
+            isRunning = false;
+          }
         }
       }
     });
@@ -88,114 +97,202 @@ class _PomodoroWidgetState extends State<PomodoroWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final Color workColor = Colors.red.shade700;
+    final Color restColor = Colors.green.shade700;
+
     return Column(
       children: [
         Text(
           isWorking ? "On Work" : "On Rest",
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: isWorking ? workColor : restColor,
           ),
+        ),
+        const SizedBox(height: 8),
+        // Sélection du nombre de rounds
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (!isRunning)
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.blue,
+                  side: const BorderSide(color: Colors.blue, width: 2),
+                  minimumSize: const Size(36, 36),
+                ),
+                onPressed: () {
+                  setState(() {
+                    if (totalRounds < 99) totalRounds++;
+                  });
+                },
+                child: const Icon(Icons.arrow_drop_up, color: Colors.blue),
+              ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Column(
+                children: [
+                  const Text("Rounds", style: TextStyle(color: Colors.blue)),
+                  Text(
+                    '$currentRound / $totalRounds',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (!isRunning)
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.blue,
+                  side: const BorderSide(color: Colors.blue, width: 2),
+                  minimumSize: const Size(36, 36),
+                ),
+                onPressed: () {
+                  setState(() {
+                    if (totalRounds > 1) totalRounds--;
+                  });
+                },
+                child: const Icon(Icons.arrow_drop_down, color: Colors.blue),
+              ),
+          ],
         ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Chrono Travail
-            Column(
-              children: [
-                if (!isRunning) // Affiche uniquement si non démarré
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white, width: 2),
-                      minimumSize: const Size(36, 36),
+            Container(
+              decoration: BoxDecoration(
+                color: workColor.withOpacity(isWorking ? 0.15 : 0.05),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: [
+                  if (!isRunning)
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: workColor,
+                        side: BorderSide(color: workColor, width: 2),
+                        minimumSize: const Size(36, 36),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          if (workMinutes < 99) workMinutes++;
+                          workRemaining = Duration(minutes: workMinutes);
+                        });
+                      },
+                      child: Icon(Icons.arrow_drop_up, color: workColor),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        if (workMinutes < 99) workMinutes++;
-                        workRemaining = Duration(minutes: workMinutes);
-                      });
-                    },
-                    child: const Icon(Icons.arrow_drop_up, color: Colors.white),
-                  ),
-                const Text("Work", style: TextStyle(color: Colors.white)),
-                Text(
-                  format(workRemaining),
-                  style: const TextStyle(fontSize: 32, color: Colors.white),
-                ),
-                if (!isRunning) // Affiche uniquement si non démarré
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white, width: 2),
-                      minimumSize: const Size(36, 36),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        if (workMinutes > 1) workMinutes--;
-                        workRemaining = Duration(minutes: workMinutes);
-                      });
-                    },
-                    child: const Icon(
-                      Icons.arrow_drop_down,
-                      color: Colors.white,
+                  Text(
+                    "Work",
+                    style: TextStyle(
+                      color: workColor,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                Text(
-                  '${workMinutes.toString().padLeft(2, '0')} min',
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ],
+                  Text(
+                    format(workRemaining),
+                    style: TextStyle(
+                      fontSize: 32,
+                      color: workColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (!isRunning)
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: workColor,
+                        side: BorderSide(color: workColor, width: 2),
+                        minimumSize: const Size(36, 36),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          if (workMinutes > 1) workMinutes--;
+                          workRemaining = Duration(minutes: workMinutes);
+                        });
+                      },
+                      child: Icon(Icons.arrow_drop_down, color: workColor),
+                    ),
+                  Text(
+                    '${workMinutes.toString().padLeft(2, '0')} min',
+                    style: TextStyle(
+                      color: workColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(width: 32),
             // Chrono Repos
-            Column(
-              children: [
-                if (!isRunning) // Affiche uniquement si non démarré
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white, width: 2),
-                      minimumSize: const Size(36, 36),
+            Container(
+              decoration: BoxDecoration(
+                color: restColor.withOpacity(!isWorking ? 0.15 : 0.05),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: [
+                  if (!isRunning)
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: restColor,
+                        side: BorderSide(color: restColor, width: 2),
+                        minimumSize: const Size(36, 36),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          if (restMinutes < 99) restMinutes++;
+                          restRemaining = Duration(minutes: restMinutes);
+                        });
+                      },
+                      child: Icon(Icons.arrow_drop_up, color: restColor),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        if (restMinutes < 99) restMinutes++;
-                        restRemaining = Duration(minutes: restMinutes);
-                      });
-                    },
-                    child: const Icon(Icons.arrow_drop_up, color: Colors.white),
-                  ),
-                const Text("Rest", style: TextStyle(color: Colors.white)),
-                Text(
-                  format(restRemaining),
-                  style: const TextStyle(fontSize: 32, color: Colors.white),
-                ),
-                if (!isRunning) // Affiche uniquement si non démarré
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white, width: 2),
-                      minimumSize: const Size(36, 36),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        if (restMinutes > 1) restMinutes--;
-                        restRemaining = Duration(minutes: restMinutes);
-                      });
-                    },
-                    child: const Icon(
-                      Icons.arrow_drop_down,
-                      color: Colors.white,
+                  Text(
+                    "Rest",
+                    style: TextStyle(
+                      color: restColor,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                Text(
-                  '${restMinutes.toString().padLeft(2, '0')} min',
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ],
+                  Text(
+                    format(restRemaining),
+                    style: TextStyle(
+                      fontSize: 32,
+                      color: restColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (!isRunning)
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: restColor,
+                        side: BorderSide(color: restColor, width: 2),
+                        minimumSize: const Size(36, 36),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          if (restMinutes > 1) restMinutes--;
+                          restRemaining = Duration(minutes: restMinutes);
+                        });
+                      },
+                      child: Icon(Icons.arrow_drop_down, color: restColor),
+                    ),
+                  Text(
+                    '${restMinutes.toString().padLeft(2, '0')} min',
+                    style: TextStyle(
+                      color: restColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -203,28 +300,28 @@ class _PomodoroWidgetState extends State<PomodoroWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: const BorderSide(color: Colors.white, width: 2),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                foregroundColor: Colors.black,
+                side: BorderSide(color: Colors.white, width: 2),
               ),
               onPressed: isRunning ? null : start,
               child: const Text('Start'),
             ),
             const SizedBox(width: 8),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: const BorderSide(color: Colors.white, width: 2),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                foregroundColor: Colors.black,
+                side: BorderSide(color: Colors.white, width: 2),
               ),
               onPressed: isRunning ? stop : null,
               child: const Text('Stop'),
             ),
             const SizedBox(width: 8),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: const BorderSide(color: Colors.white, width: 2),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                foregroundColor: Colors.black,
+                side: BorderSide(color: Colors.white, width: 2),
               ),
               onPressed: reset,
               child: const Text('Reset'),

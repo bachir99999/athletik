@@ -7,15 +7,21 @@ class PomodoroPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Chrono Page'), centerTitle: true),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [PomodoroWidget()],
+      appBar: AppBar(title: const Text('Pomodoro Page'), centerTitle: true),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset('assets/images/pomodoro_bg.jpg', fit: BoxFit.cover),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [PomodoroWidget()],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
