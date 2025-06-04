@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/views/pages/running_page.dart';
+import 'package:flutter_application_1/views/pages/chrono_page.dart';
+import 'package:flutter_application_1/views/pages/pomodoro_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -29,12 +30,10 @@ class HomePage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const RunningPage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const ChronoPage()),
                   );
                 },
-                child: const Text('Running'),
+                child: const Text('Chrono'),
               ),
               const SizedBox(height: 16),
               OutlinedButton(
@@ -53,6 +52,29 @@ class HomePage extends StatelessWidget {
                   // Action pour le bouton "Rounds"
                 },
                 child: const Text('Rounds'),
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0), // coins carrés
+                  ),
+                  side: const BorderSide(
+                    width: 2,
+                    color: Colors.white,
+                  ), // Bordure blanche
+                  foregroundColor: Colors.white, // Texte blanc
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PomodoroPage(),
+                    ),
+                  );
+                },
+                child: const Text('Pomodoro'),
               ),
             ],
           ),

@@ -10,21 +10,30 @@ class ChronoWidget extends StatefulWidget {
 }
 
 class _ChronoWidgetState extends State<ChronoWidget> {
+  int selectedMinutes = 0;
+  int selectedSeconds = 0;
   Duration remaining = Duration.zero;
   bool isRunning = false;
-  final TextEditingController _controller = TextEditingController();
   bool hasStarted = false;
 
   @override
   void dispose() {
     isRunning = false;
-    _controller.dispose();
     super.dispose();
   }
 
   void startTimer() {
-    if (!isRunning && remaining.inSeconds > 0) {
+    if (!isRunning &&
+        (selectedMinutes > 0 ||
+            selectedSeconds > 0 ||
+            remaining.inMilliseconds > 0)) {
       setState(() {
+        if (!hasStarted) {
+          remaining = Duration(
+            minutes: selectedMinutes,
+            seconds: selectedSeconds,
+          );
+        }
         isRunning = true;
         hasStarted = true;
       });
@@ -43,18 +52,9 @@ class _ChronoWidgetState extends State<ChronoWidget> {
       isRunning = false;
       hasStarted = false;
       remaining = Duration.zero;
-      _controller.clear();
+      selectedMinutes = 0;
+      selectedSeconds = 0;
     });
-  }
-
-  void setInitialTime() {
-    final input = int.tryParse(_controller.text);
-    if (input != null && input > 0) {
-      setState(() {
-        remaining = Duration(seconds: input);
-        hasStarted = false;
-      });
-    }
   }
 
   void tick() async {
@@ -78,9 +78,9 @@ class _ChronoWidgetState extends State<ChronoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    int minutes = remaining.inMinutes;
-    int seconds = remaining.inSeconds % 60;
-    int centiseconds = (remaining.inMilliseconds % 1000) ~/ 10; // 2 digits
+    int minutes = hasStarted ? remaining.inMinutes : selectedMinutes;
+    int seconds = hasStarted ? remaining.inSeconds % 60 : selectedSeconds;
+    int centiseconds = hasStarted ? (remaining.inMilliseconds % 1000) ~/ 10 : 0;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -89,34 +89,96 @@ class _ChronoWidgetState extends State<ChronoWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                width: 80,
-                child: TextField(
-                  controller: _controller,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Secondes'),
-                  onSubmitted: (_) => setInitialTime(),
-                ),
+              // Minutes
+              Column(
+                children: [
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white, width: 2),
+                      minimumSize: const Size(40, 40),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        if (selectedMinutes < 99) selectedMinutes++;
+                      });
+                    },
+                    child: const Icon(Icons.arrow_drop_up, color: Colors.white),
+                  ),
+                  Text(
+                    selectedMinutes.toString().padLeft(2, '0'),
+                    style: const TextStyle(fontSize: 32, color: Colors.white),
+                  ),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white, width: 2),
+                      minimumSize: const Size(40, 40),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        if (selectedMinutes > 0) selectedMinutes--;
+                      });
+                    },
+                    child: const Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const Text('min', style: TextStyle(color: Colors.white)),
+                ],
               ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white, // Texte blanc
-                  side: const BorderSide(
-                    color: Colors.white,
-                    width: 2,
-                  ), // Bordure blanche
-                ),
-                onPressed: setInitialTime,
-                child: const Text('Valider'),
+              const SizedBox(width: 32),
+              // Secondes
+              Column(
+                children: [
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white, width: 2),
+                      minimumSize: const Size(40, 40),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        if (selectedSeconds < 59) selectedSeconds += 5;
+                      });
+                    },
+                    child: const Icon(Icons.arrow_drop_up, color: Colors.white),
+                  ),
+                  Text(
+                    selectedSeconds.toString().padLeft(2, '0'),
+                    style: const TextStyle(fontSize: 32, color: Colors.white),
+                  ),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white, width: 2),
+                      minimumSize: const Size(40, 40),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        if (selectedSeconds > 0) selectedSeconds -= 5;
+                      });
+                    },
+                    child: const Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const Text('sec', style: TextStyle(color: Colors.white)),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
         ],
         Text(
           '$minutes:${seconds.toString().padLeft(2, '0')}:${centiseconds.toString().padLeft(2, '0')}',
-          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         const SizedBox(height: 16),
         Row(
@@ -124,14 +186,11 @@ class _ChronoWidgetState extends State<ChronoWidget> {
           children: [
             OutlinedButton(
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white, // Texte blanc
-                side: const BorderSide(
-                  color: Colors.white,
-                  width: 2,
-                ), // Bordure blanche
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white, width: 2),
               ),
               onPressed:
-                  (!isRunning && remaining.inMilliseconds > 0)
+                  (!isRunning && (minutes > 0 || seconds > 0))
                       ? startTimer
                       : null,
               child: const Text('Start'),

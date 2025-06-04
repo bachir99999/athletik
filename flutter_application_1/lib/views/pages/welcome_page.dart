@@ -15,7 +15,6 @@ class WelcomePage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // On enlève l'image ici, elle est déjà en fond
                 Text(
                   'Welcome to Athletik',
                   style: TextStyle(fontSize: 24, color: Colors.white),
@@ -31,7 +30,7 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => const HomePage()),
                     );
