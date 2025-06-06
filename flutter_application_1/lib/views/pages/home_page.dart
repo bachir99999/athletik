@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/views/pages/chrono_page.dart';
 import 'package:flutter_application_1/views/pages/pomodoro_page.dart';
+import 'package:flutter_application_1/views/pages/rounds_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -49,7 +50,10 @@ class HomePage extends StatelessWidget {
                   foregroundColor: Colors.white, // Texte blanc
                 ),
                 onPressed: () {
-                  // Action pour le bouton "Rounds"
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const RoundsPage()),
+                  );
                 },
                 child: const Text('Rounds'),
               ),

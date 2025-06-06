@@ -111,7 +111,6 @@ class _PomodoroWidgetState extends State<PomodoroWidget> {
           ),
         ),
         const SizedBox(height: 8),
-        // Sélection du nombre de rounds
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -168,7 +167,7 @@ class _PomodoroWidgetState extends State<PomodoroWidget> {
             // Chrono Travail
             Container(
               decoration: BoxDecoration(
-                color: workColor.withOpacity(isWorking ? 0.15 : 0.05),
+                color: workColor.withAlpha(!isWorking ? 50 : 25),
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.all(8),
@@ -233,7 +232,7 @@ class _PomodoroWidgetState extends State<PomodoroWidget> {
             // Chrono Repos
             Container(
               decoration: BoxDecoration(
-                color: restColor.withOpacity(!isWorking ? 0.15 : 0.05),
+                color: restColor.withAlpha(!isWorking ? 50 : 25),
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.all(8),
